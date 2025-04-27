@@ -1,0 +1,26 @@
+export const tabMap = {
+  // 0: { label: "EC2", key: "Ec2" },
+  // 1: { label: "RDS", key: "Rds" },
+  // 2: { label: "ASG", key: "Asg" },
+};
+
+export const monthOptions = [
+  { label: "Jan 2024", value: "01-2024" },
+  { label: "Feb 2024", value: "02-2024" },
+  { label: "Mar 2024", value: "03-2024" },
+  { label: "Apr 2024", value: "04-2024" },
+  { label: "May 2024", value: "05-2024" },
+  { label: "Jun 2024", value: "06-2024" },
+  { label: "Jul 2024", value: "07-2024" },
+  { label: "Aug 2024", value: "08-2024" },
+  { label: "Sep 2024", value: "09-2024" },
+  { label: "Oct 2024", value: "10-2024" },
+  { label: "Nov 2024", value: "11-2024" },
+  { label: "Dec 2024", value: "12-2024" },
+  { label: "Jan 2025", value: "01-2025" },
+  { label: "Feb 2025", value: "02-2025" },
+  { label: "Mar 2025", value: "03-2025" },
+  { label: "Apr 2025", value: "04-2025" },
+  { label: "May 2025", value: "05-2025" },
+  { label: "June 2025", value: "06-2025" },
+];

@@ -57,14 +57,42 @@ export const createUserConfig = [
       { label: "ROLE_CUSTOMER", value: "ROLE_CUSTOMER" },
     ],
   },
+  // {
+  //   type: "button",
+  //   name: "back",
+  //   column: "full",
+  //   buttonText: "← Back",
+  //   inputClass: "bg-white text-[#0073E6] border border-[#0073E6] font-semibold px-6 py-2 rounded shadow hover:bg-[#ebf5ff] transition-all",
+  //   wrapperClass: "flex justify-start md:justify-start mt-4",
+  // },
+  // {
+  //   type: "submit",
+  //   name: "save",
+  //   column: "full",
+  //   buttonText: "Save",
+  //   inputClass: "bg-[#0073E6] text-white font-semibold px-6 py-2 rounded shadow hover:bg-[#005bb5] transition-all",
+  //   wrapperClass: "flex justify-center md:justify-end mt-4",
+  // },
   {
-    type: "submit",
-    name: "save",
+    type: "custom-group",
     column: "full",
-    buttonText: "Save",
-    
-    inputClass:
-      "bg-[#0073E6] text-white font-semibold px-6 py-2 rounded shadow hover:bg-[#005bb5] transition-all",
-    wrapperClass: "flex justify-center md:justify-end mt-4",
+    children: [
+      {
+        type: "button",
+        name: "back",
+        buttonText: "← Back",
+        onClick: "goBack",
+        inputClass:
+          "bg-white text-[#0073E6] border border-[#0073E6] font-semibold px-6 py-2 rounded shadow hover:bg-[#ebf5ff] transition-all",
+      },
+      {
+        type: "submit",
+        name: "save",
+        buttonText: "Save",
+        inputClass:
+          "bg-[#0073E6] text-white font-semibold px-6 py-2 rounded shadow hover:bg-[#005bb5] transition-all",
+      },
+    ],
+    wrapperClass: "flex justify-between mt-6 gap-4",
   },
 ];

@@ -5,10 +5,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { getApi, postApi, putApi } from "../../Services/commonService";
 import { URLS } from "../../Services/url";
-import { dashboard } from "../../routes/routeConfig";
-import useFormHandler from "../../hooks/handleChangeHook";
+import { dashboard } from "../../routes/routes";
+import useFormHandler from "../../Hooks/handleChangeHook";
+import { useDispatch, useSelector } from "react-redux";
+import { setUserData } from "../../redux/action";
 
 const CreateUser = () => {
+  const dispatch = useDispatch();
+  const currentUserId = useSelector(state => state.user.id);
+
   const [formData, handleChange, setFormData] = useFormHandler({
     firstName: "",
     lastName: "",
@@ -33,7 +38,7 @@ const CreateUser = () => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const res = await getApi(URLS.Account);
+        const res = await getApi(URLS.ACCOUNT);
         setAllAccounts(res);
       } catch {
         toast.error("Failed to load accounts");
@@ -66,7 +71,7 @@ const CreateUser = () => {
     if (id) {
       (async () => {
         try {
-          const userData = await getApi(`/${URLS.User}/${id}`);
+          const userData = await getApi(`/${URLS.USER}/${id}`);
           setFormData({
             firstName: userData?.firstName,
             lastName: userData?.lastName,
@@ -91,13 +96,21 @@ const CreateUser = () => {
 
     try {
       if (id) {
-        await putApi(`${URLS.User}/${id}`, payload);
+        const updatedUser = await putApi(`${URLS.USER}/${id}`, payload);
         toast.success("User updated successfully");
+        if (parseInt(id) === currentUserId) {
+          dispatch(setUserData({
+            id: updatedUser?.id,
+            firstName: updatedUser?.firstName,
+            lastName: updatedUser?.lastName,
+            role: updatedUser?.role
+          }));
+        }
       } else {
         await postApi("/user", payload);
         toast.success("User created successfully");
       }
-      navigate(`/dashboard/${dashboard.users}`);
+      navigate(`/dashboard/${dashboard.UserMgmt}`);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to create user");
     }

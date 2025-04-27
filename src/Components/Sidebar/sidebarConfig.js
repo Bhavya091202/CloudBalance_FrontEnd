@@ -1,22 +1,24 @@
+import { dashboard } from "../../routes/routes";
+
 export const sidebarConfig = [
   {
     name: "User Management",
-    path: "users",
+    path: `/dashboard/${dashboard.UserMgmt}`,
     allowedRoles: ["ROLE_ADMIN", "ROLE_READ_ONLY"],
   },
   {
     name: "Onboarding",
-    path: "onboarding",
-    allowedRoles: ["ROLE_ADMIN", "ROLE_READ_ONLY"],
+    path: `/dashboard/${dashboard.Onboarding}`,
+    allowedRoles: ["ROLE_ADMIN"],
   },
   {
     name: "Cost Explorer",
-    path: "cost-explorer",
+    path: `/dashboard/${dashboard.CostExplorer}`,
     allowedRoles: ["ROLE_ADMIN", "ROLE_CUSTOMER", "ROLE_READ_ONLY"],
   },
   {
     name: "AWS Services",
-    path: "aws-services",
+    path: `/dashboard/${dashboard.AwsServices}`,
     allowedRoles: ["ROLE_ADMIN", "ROLE_CUSTOMER", "ROLE_READ_ONLY"],
   },
 ];

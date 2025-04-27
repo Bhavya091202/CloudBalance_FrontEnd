@@ -15,7 +15,7 @@ const Navbar = () => {
   const { firstName, lastName, role } = useSelector((state) => state.user);
   
   const handleLogout = async () => {
-    await postApi(URLS.Logout);
+    await postApi(URLS.LOGOUT);
     localStorage.removeItem("token");
     navigate("/login");
     dispatch(clearUserData());

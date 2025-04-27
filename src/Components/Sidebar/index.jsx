@@ -4,6 +4,8 @@ import { sidebarConfig } from "./sidebarConfig";
 
 const Sidebar = ({ userRole }) => {
   // debugger;
+  // TODO: make sidebar collapsable
+  // TODO: make sidebar extendable and add users and users
   return (
     <div className="w-64 bg-white shadow-lg h-screen px-6 py-8">
       {/* <h2 className="text-xl font-bold mb-6 text-blue-600">CloudBalance</h2> */}

@@ -1,12 +1,13 @@
 import React from 'react';
 
-const SelectInput = ({ inputFieldData, handleChange, value }) => {
-
+const SelectInput = ({ inputFieldData, handleChange, value, hideLabel = false }) => {
   return (
-    <div>
-      <label htmlFor={inputFieldData?.name} className={inputFieldData?.labelClass}>
-      {inputFieldData?.label}
-      </label>
+    <div className={inputFieldData?.wrapperClass}>
+      {!hideLabel && (
+        <label htmlFor={inputFieldData?.name} className={inputFieldData?.labelClass}>
+          {inputFieldData?.label}
+        </label>
+      )}
       <select
         name={inputFieldData?.name}
         className={inputFieldData?.inputClass}

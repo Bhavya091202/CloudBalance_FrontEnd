@@ -11,7 +11,7 @@ import SubmitPage from "./SuccessPage/index.jsx";
 
 const Onboarding = () => {
   const [index, setIndex] = useState(0);
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     arn: "",
     accountId: "",
     name: "",
@@ -35,14 +35,9 @@ const Onboarding = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
+    
     const errorMsg = validateField(name, value);
     setErrors((prev) => ({ ...prev, [name]: errorMsg }));
-  };
-
-  const handleCopy = (text, label = "Copied!") => {
-    navigator.clipboard.writeText(text);
-    toast.success(label);
   };
 
   const isFormValid =
@@ -68,8 +63,8 @@ const Onboarding = () => {
   const submit = async () => {
     try {
       setIndex((prev) => prev + 1);
-      const response = await postApi(URLS.Account, formData);
-      console.log(response);
+      const response = await postApi(URLS.ACCOUNT, formData);
+      // console.log(response);
     } catch (error) {
       toast.error(error);
     }
@@ -77,7 +72,6 @@ const Onboarding = () => {
   const pages = [
     <IAMRoleSetupPage
       next={next}
-      handleCopy={handleCopy}
       handleChange={handleChange}
       formData={formData}
       errors={errors}
@@ -87,14 +81,12 @@ const Onboarding = () => {
       prev={prev}
       next={next}
       cancel={cancel}
-      handleCopy={handleCopy}
       formData={formData}
     />,
     <CURStepByStepPage
       prev={prev}
       cancel={cancel}
       submit={submit}
-      handleCopy={handleCopy}
       formData={formData}
     />,
     <SubmitPage />,

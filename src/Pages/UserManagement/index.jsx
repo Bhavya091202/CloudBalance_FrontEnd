@@ -7,7 +7,7 @@ import TableWrapper from "../../Components/TableWrapper";
 import { userTableColumns } from "./userTableColumns";
 import { URLS } from "../../Services/url";
 import { getApi } from "../../Services/commonService";
-import { Users } from "../../routes/routeConfig";
+import { Users } from "../../routes/routes";
 
 const UserMgmt = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const UserMgmt = () => {
   useEffect(() => {
     (async () => {
       try {
-        const data = await getApi(URLS.User);
+        const data = await getApi(URLS.USER);
         setUsers(data);
       } catch (error) {
         console.error("Failed to fetch users:", error.message);
@@ -47,7 +47,7 @@ const UserMgmt = () => {
           </div>
         )}
 
-        <TableWrapper columns={userTableColumns(handleEditUser)} rows={users} />
+        <TableWrapper columns={userTableColumns(handleEditUser, role)} rows={users} />
       </div>
     </Box>
   );

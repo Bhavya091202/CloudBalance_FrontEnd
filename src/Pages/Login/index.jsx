@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toast, ToastContainer } from "react-toastify";
 import cloudLogo from "./../../Assets/logo.png";
 import Form from "../../Components/FormWrapper";
 import authConfig from "./authConfig";
@@ -9,7 +9,8 @@ import ImageWrapper from "../../Components/ImageWrapper";
 import { URLS } from "../../Services/url";
 import { useDispatch } from "react-redux";
 import { setUserData } from "../../redux/action";
-import useFormHandler from "../../hooks/handleChangeHook";
+import useFormHandler from "../../Hooks/handleChangeHook";
+import { dashoardNavigationHandler } from "../../Utils/dashoardNavigationHandler";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -24,28 +25,21 @@ const Login = () => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const authData = await postApi(URLS?.Login, loginData);
-      toast.success("Login successful");
-
+      const authData = await postApi(URLS?.LOGIN, loginData);
       localStorage.setItem("token", authData?.accessToken);
-
       dispatch(
         setUserData({
+          id: authData?.id,
           firstName: authData?.firstName,
           lastName: authData?.lastName,
           role: authData?.role,
         })
       );
-
-      const role = authData?.role;
-
-      if (role === "ROLE_ADMIN" || role === "ROLE_READ_ONLY") {
-        navigate("/dashboard/users");
-      } else if (role === "ROLE_CUSTOMER") {
-        navigate("/dashboard/cost-explorer");
-      } else {
-        navigate("/dashboard");
-      }
+      const path = dashoardNavigationHandler(authData?.role);
+      toast.success("Navigating to your dashboard...", {
+        autoClose: 1500,
+        onClose: () => navigate(path),
+      });
     } catch (error) {
       toast.error(error?.message || "Login failed");
     }
@@ -58,8 +52,8 @@ const Login = () => {
         <ImageWrapper
           logo={cloudLogo}
           logoName={"CloudBalance Logo"}
-          imgClass={"h-56 w-auto object-contain drop-shadow-md"}
-          imgContainerClass={"flex justify-center mb-0"}
+          imgClass="h-28 w-auto object-contain drop-shadow-md mx-auto"
+          imgContainerClass="w-full flex justify-center items-center mb-4"
         />
 
         {/* Form Title */}

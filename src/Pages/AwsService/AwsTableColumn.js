@@ -1,36 +1,30 @@
-export const awsServiceColumns = [
-    { key: 'accountId', label: 'Account ID' },
-    { key: 'resourceId', label: 'Resource ID' },
-    { key: 'resourceName', label: 'Resource Name' },
-    { key: 'region', label: 'Region' },
-    { key: 'status', label: 'Status' },
-  ];
-  
-export const awsServiceData = [
-    {
-      accountId: '2755956855473',
-      resourceId: 'i-06a13ed5d62856e02',
-      resourceName: 'kibana-uat-auditor',
-      region: 'N. Virginia',
-      status: 'RUNNING',
-      service: 'EC2',
-    },
-    {
-      accountId: '68550269032',
-      resourceId: 'i-0e88e8f484ad4b3e5',
-      resourceName: 'pitbull',
-      region: 'N. Virginia',
-      status: 'RUNNING',
-      service: 'ASG',
-    },
-    {
-      accountId: '391238867284',
-      resourceId: 'i-02031db3abe7ef4',
-      resourceName: 'prod-jenkins',
-      region: 'Mumbai',
-      status: 'STOPPED',
-      service: 'RDS',
-    },
-  ];
-  
-  
+export const tabMap = {
+  0: { label: "EC2", key: "EC2" },
+  1: { label: "RDS", key: "RDS" },
+  2: { label: "ASG", key: "ASG" },
+};
+
+export const awsServiceColumns = {
+  EC2: [
+    { field: "resourceId", headerName: "Resource ID", flex: 1 },
+    { field: "resourceName", headerName: "Resource Name", flex: 1 },
+    { field: "region", headerName: "Region", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1 },
+  ],
+  RDS: [
+    { field: "resourceId", headerName: "Resource ID", flex: 1 },
+    { field: "resourceName", headerName: "Resource Name", flex: 1 },
+    { field: "engine", headerName: "Engine", flex: 1 },
+    { field: "region", headerName: "Region", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1 },
+  ],
+  ASG: [
+    { field: "resourceId", headerName: "Resource ID", flex: 1 },
+    { field: "resourceName", headerName: "Resource Name", flex: 1 },
+    { field: "region", headerName: "Region", flex: 1 },
+    { field: "desiredCapacity", headerName: "Desired Capacity", flex: 1 },
+    { field: "minSize", headerName: "Min Size", flex: 1 },
+    { field: "maxSize", headerName: "Max Size", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1 },
+  ],
+};

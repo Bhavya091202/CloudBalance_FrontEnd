@@ -1,48 +1,106 @@
-import React, { useState } from 'react';
-import { Tabs, Tab } from '@mui/material';
-import SelectInput from '../../Components/InputFieldWrapper/SelectFieldWrapper';
-import useFormHandler from '../../hooks/handleChangeHook';
-import TableWrapper from '../../Components/TableWrapper';
-import {awsServiceColumns} from './AwsTableColumn';
-import {awsServiceData} from './AwsTableColumn';
+import React, { useEffect, useState } from "react";
+import { Box, Typography, CircularProgress } from "@mui/material";
+import { URLS } from "../../Services/url";
+import { getApi } from "../../Services/commonService";
+import { awsServiceColumns, tabMap } from "./AwsTableColumn";
+import TableWrapper from "../../Components/TableWrapper";
+import TabWrapper from "../../Components/MUI/TabWrapper";
+import SelectWrapper from "../../Components/MUI/SelectWrapper";
 
 const AwsService = () => {
-  const [formData, handleChange] = useFormHandler({ role: 'ROLE_ADMIN' });
-  const [tab, setTab] = useState('EC2');
+  const [tabIndex, setTabIndex] = useState(0);
+  const [accounts, setAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [accountLoading, setAccountLoading] = useState(true);
 
-  const handleTabChange = (_, newValue) => setTab(newValue);
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        setAccountLoading(true);
+        setSelectedAccount(null);
 
-  const filteredData = awsServiceData.filter(item => item.service === tab);
+        const dataGet = await getApi(URLS.ACCOUNT);
+        setAccounts(dataGet);
+        setSelectedAccount(dataGet[0]);
+        fetchData(tabMap[tabIndex].key, dataGet[0].accountId);
+      } catch {
+        setAccounts([]);
+      } finally {
+        setAccountLoading(false);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
+  const fetchData = async (type, accountId) => {
+    try {
+      setLoading(true);
+      const res = await getApi(`${URLS[type]}?accountId=${accountId}`);
+      setData(Array.isArray(res) ? res : []);
+    } catch (err) {
+      console.error("Error fetching resource data:", err);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const activeKey = tabMap[tabIndex].key;
 
   return (
-    <div className="p-6">
-      {/* Top right role dropdown */}
-      <div className="flex justify-end mb-4">
-        <SelectInput
-          inputFieldData={{
-            label: 'Select Role',
-            name: 'role',
-            type: 'select',
-            placeholder: 'Select Role',
-            labelClass: 'text-sm font-semibold mb-1 text-gray-700',
-            inputClass:
-              'border px-3 py-2 rounded-md shadow-sm w-60 focus:ring-2 focus:ring-blue-500',
-            options: [],
+    <div>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5">AWS Services</Typography>
+        <SelectWrapper
+          accounts={accounts}
+          selectedAccount={selectedAccount}
+          setSelectedAccount={(acc) => {
+            setSelectedAccount(acc);
+            if (acc?.accountId) fetchData(tabMap[tabIndex].key, acc.accountId);
           }}
-          handleChange={handleChange}
-          value={formData.role}
+          accountLoading={accountLoading}
+          disableSelect={loading}
         />
-      </div>
+      </Box>
 
-      {/* Tabs for services */}
-      <Tabs value={tab} onChange={handleTabChange} className="mb-4">
-        <Tab label="EC2" value="EC2" />
-        <Tab label="RDS" value="RDS" />
-        <Tab label="ASG" value="ASG" />
-      </Tabs>
+      <Box sx={{ p: 4 }}>
+        <TabWrapper
+          tabMap={tabMap}
+          tabIndex={tabIndex}
+          setTabIndex={(tab) => {
+            setTabIndex(tab);
+            if (selectedAccount?.accountId) fetchData(tabMap[tab].key, selectedAccount.accountId);
+          }}
+          disableTabs={loading}
+        />
 
-      {/* Table for selected tab */}
-      <TableWrapper columns={awsServiceColumns} rows={filteredData} />
+        <Box sx={{ height: 600 }}>
+          {loading ? (
+            <Box
+              sx={{
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableWrapper
+              rows={data}
+              columns={
+                awsServiceColumns[activeKey]?.map((col) => ({
+                  key: col.field,
+                  label: col.headerName,
+                })) || []
+              }
+            />
+          )}
+        </Box>
+      </Box>
     </div>
   );
 };
