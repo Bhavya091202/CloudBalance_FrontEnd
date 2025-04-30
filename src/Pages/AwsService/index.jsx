@@ -51,27 +51,28 @@ const AwsService = () => {
 
   return (
     <div>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5">AWS Services</Typography>
-        <SelectWrapper
-          accounts={accounts}
-          selectedAccount={selectedAccount}
-          setSelectedAccount={(acc) => {
-            setSelectedAccount(acc);
-            if (acc?.accountId) fetchData(tabMap[tabIndex].key, acc.accountId);
-          }}
-          accountLoading={accountLoading}
-          disableSelect={loading}
-        />
-      </Box>
-
       <Box sx={{ p: 4 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{mb: 3}}>
+          <Typography variant="h5">AWS Services</Typography>
+          <SelectWrapper
+            accounts={accounts}
+            selectedAccount={selectedAccount}
+            setSelectedAccount={(acc) => {
+              setSelectedAccount(acc);
+              if (acc?.accountId)
+                fetchData(tabMap[tabIndex].key, acc.accountId);
+            }}
+            accountLoading={accountLoading}
+            disableSelect={loading}
+          />
+        </Box>
         <TabWrapper
           tabMap={tabMap}
           tabIndex={tabIndex}
           setTabIndex={(tab) => {
             setTabIndex(tab);
-            if (selectedAccount?.accountId) fetchData(tabMap[tab].key, selectedAccount.accountId);
+            if (selectedAccount?.accountId)
+              fetchData(tabMap[tab].key, selectedAccount.accountId);
           }}
           disableTabs={loading}
         />

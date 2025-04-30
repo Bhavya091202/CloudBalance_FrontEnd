@@ -17,19 +17,14 @@ const PageLayout = () => {
   const role = useSelector((state) => state.user.role);
   return (
     <div className="flex flex-col h-screen">
-      {/* Top Navbar */}
       <header>
         <Navbar />
       </header>
 
-      {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar (fixed width) */}
         <Sidebar userRole={role} />
 
-        {/* Content and Footer aligned with sidebar */}
         <div className="flex flex-col flex-1 bg-gray-50">
-          {/* Dynamic page content */}
           <main className="flex-1 p-6 overflow-auto">
             <Routes>
               <Route index element={<Dashboard />} />
@@ -79,7 +74,6 @@ const PageLayout = () => {
             </Routes>
           </main>
 
-          {/* Footer aligned to content (not full width) */}
           <Footer />
         </div>
       </div>

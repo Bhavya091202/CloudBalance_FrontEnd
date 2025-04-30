@@ -8,6 +8,20 @@ const persistConfig = {
   storage,
 };
 
+{
+  user: {
+    name: "hjhj",
+    "email": "hgfh"
+  }
+}
+
+{
+  user: {
+    name: "hjgghjghjg",
+  }
+}
+
+
 const rootReducer = combineReducers({
   user: userReducer,
 });

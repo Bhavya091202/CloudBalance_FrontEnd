@@ -2,12 +2,13 @@ import React from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import tickImage from '../../../Assets/green_tick_check.svg'; 
+import { dashboard } from '../../../routes/routes';
 
 const SubmitPage = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/dashboard/CostExplorer'); 
+    navigate(`/dashboard/${dashboard?.UserMgmt}`); 
   };
 
   return (

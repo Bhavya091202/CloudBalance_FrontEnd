@@ -4,7 +4,7 @@ const SidebarWrapper = ({ open, onClose, title = "Filters", children }) => {
   if (!open) return null;
 
   return (
-    <div className="absolute top-4 right-4 w-[400px] min-h-96 max-h-[90vh] bg-white shadow-lg p-6 z-[50] overflow-y-auto rounded-lg">
+    <div className="absolute right-0 w-[400px] min-h-96 max-h-[90vh] bg-white shadow-lg p-6 z-[50] overflow-y-auto rounded-lg">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">{title}</h2>

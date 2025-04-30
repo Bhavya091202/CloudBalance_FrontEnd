@@ -16,8 +16,18 @@ const CustomizeFilterSidebar = ({
   applySelectedOptions,
   setSelectedOptions,
   fetchFilter,
+  onClearAllFilters, // ✅ Add this prop
 }) => (
   <SidebarWrapper open={open} onClose={onClose}>
+    <div className="flex justify-between items-center mb-4">
+      <button
+        onClick={onClearAllFilters}
+        className="text-sm text-red-600 hover:underline"
+      >
+        ❌ Clear All
+      </button>
+    </div>
+
     <div className="space-y-4">
       {Object.values(tabMap).map((tab) => (
         <SidebarFilterSection

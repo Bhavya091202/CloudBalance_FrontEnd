@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { getApi, postApi } from "../../Services/commonService";
 import { URLS } from "../../Services/url";
 import CostExplorerHeader from "../../Components/CostExplorerContainers/costExplorerHeader";
@@ -9,18 +9,18 @@ import { transformDbDataToFusionChart } from "../../Utils/transformChartDatatoFu
 import FusionChartWrapper from "../../Components/FusionGrabh";
 import TableWrapper from "../../Components/TableWrapper";
 import { transformDbDataToTableChart } from "../../Utils/transformChartDataTableInput";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { downloadExcelFile } from "../../Utils/downloadInExcel";
 
 const CostExplorer = () => {
-  const [tabMap, setTabMap] = useState({});
-  const [tabIndex, setTabIndex] = useState(0);
-  const [accounts, setAccounts] = useState([]);
-  const [selectedAccount, setSelectedAccount] = useState(null);
-  const [data, setData] = useState({ categories: [], dataset: [] });
-  const [appliedFilters, setAppliedFilters] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [accountLoading, setAccountLoading] = useState(true);
+  const [tabMap, setTabMap] = useState({}); // group by tabs and filter
+  const [tabIndex, setTabIndex] = useState(0); // index of tab
+  const [accounts, setAccounts] = useState([]); // all account in user and snowflake
+  const [selectedAccount, setSelectedAccount] = useState(null); //  account selected
+  const [data, setData] = useState({ categories: [], dataset: [] }); // data grph table
+  const [appliedFilters, setAppliedFilters] = useState({}); // filters where clause
+  const [loading, setLoading] = useState(false); // loading
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [accountLoading, setAccountLoading] = useState(true); // account Loading
   const [filterData, setFilterData] = useState([]);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [openFilter, setOpenFilter] = useState(null);
@@ -34,8 +34,6 @@ const CostExplorer = () => {
     const fetchAccounts = async () => {
       try {
         setAccountLoading(true);
-        setSelectedAccount(null);
-
         const accountData = await getApi(URLS.ACCOUNT);
         const groupByData = await getApi(URLS.GROUP_BY_COST_EXPLORER);
 
@@ -47,15 +45,23 @@ const CostExplorer = () => {
           return acc;
         }, {});
 
+        const firstAccount = accountData?.[0];
         setAccounts(accountData);
-        setSelectedAccount(accountData?.[0]);
+        setSelectedAccount(firstAccount);
         setTabMap(generatedTabMap);
-      } catch {
+
+        if (firstAccount && Object.keys(generatedTabMap).length > 0) {
+          const firstKey = generatedTabMap[0].key;
+          await fetchData(firstKey, firstAccount.accountId);
+        }
+      } catch (error) {
+        console.error("Error in fetchAccounts:", error);
         setAccounts([]);
       } finally {
         setAccountLoading(false);
       }
     };
+
     fetchAccounts();
   }, []);
 
@@ -67,7 +73,7 @@ const CostExplorer = () => {
     endDate = endMonth
   ) => {
     try {
-      setLoading(true);
+      setGraphLoading(true);
       const payload = {
         groupBy: type,
         startDate: startDate,
@@ -81,12 +87,14 @@ const CostExplorer = () => {
 
       setTabData(transformDbDataToTableChart(res, type));
       setData(transformDbDataToFusionChart(res, type));
+      // console.log("table data: ", transformDbDataToTableChart(res, type));
+      // console.log("Chart Data: ", transformDbDataToFusionChart(res, type));
     } catch (err) {
       console.error("Error fetching resource data:", err);
       setData({ categories: [], dataset: [] });
       setTabData({ categories: [], dataset: [] });
     } finally {
-      setLoading(false);
+      setGraphLoading(false);
     }
   };
 
@@ -150,39 +158,9 @@ const CostExplorer = () => {
     }
   };
 
-  const downloadExcel = () => {
-    const { columns, rows } = tabData;
-
-    if (!rows || rows.length === 0) {
-      alert("No data to export!");
-      return;
-    }
-
-    const exportData = rows.map((row) => {
-      const newRow = {};
-      columns.forEach((col) => {
-        newRow[col.label] = row[col.key];
-      });
-      return newRow;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Cost Explorer Data");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-    const fileData = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
-    saveAs(fileData, "CostExplorerData.xlsx");
-  };
-
   return (
     <Box sx={{ p: 4 }}>
-      {/* Header stays normally */}
+      {/* Header */}
       <Box sx={{ mb: 4 }}>
         <CostExplorerHeader
           accounts={accounts}
@@ -196,7 +174,7 @@ const CostExplorer = () => {
         />
       </Box>
 
-      {/* Tabs stay normally */}
+      {/* Tabs */}
       <GroupByTabs
         tabMap={tabMap}
         tabIndex={tabIndex}
@@ -235,12 +213,9 @@ const CostExplorer = () => {
         }}
       />
 
-      <Box
-        className="relative flex"
-        sx={{
-          transition: "all 0.3s ease",
-        }}
-      >
+      {/* Main Layout */}
+      <Box className="relative flex" sx={{ transition: "all 0.3s ease" }}>
+        {/* Main Content Area */}
         <Box
           sx={{
             width: isFilterSidebarOpen ? "75%" : "100%",
@@ -248,92 +223,103 @@ const CostExplorer = () => {
             paddingRight: isFilterSidebarOpen ? "16px" : "0",
           }}
         >
-          {/* First Chart - Bar Chart */}
-          <div>
-            {loading ? (
-              <div>Loading chart...</div>
-            ) : (
-              <FusionChartWrapper
-                chartConfig={{
-                  type: "mscolumn2d",
-                  width: "100%",
-                  height: "400",
-                  dataFormat: "json",
-                  dataSource: {
-                    chart: {
-                      caption: "Region Wise Monthly Usage Cost",
-                      xAxisName: "Month",
-                      yAxisName: "Cost ($)",
-                      numberSuffix: "Cost ($)",
-                      labelPadding: "20",
-                      labelDisplay: "auto",
-                      theme: "fusion",
-                      drawCrossLine: "1",
-                    },
-                    categories: [{ category: data.categories }],
-                    dataset: data.dataset,
-                  },
-                }}
-              />
-            )}
-          </div>
-
-          {/* Second Chart - Line Chart */}
-          <div className="mt-8">
-            {loading ? (
-              <div>Loading line chart...</div>
-            ) : (
-              <FusionChartWrapper
-                chartConfig={{
-                  type: "msline",
-                  width: "100%",
-                  height: "400",
-                  dataFormat: "json",
-                  dataSource: {
-                    chart: {
-                      caption: "Monthly Cost Overview",
-                      xAxisName: "Month",
-                      yAxisName: "Cost ($)",
-                      theme: "fusion",
-                      drawAnchors: "1",
-                      showValues: "0",
-                      lineThickness: "2",
-                      labelPadding: "20",
-                      labelDisplay: "auto",
-                      legendPosition: "bottom",
-                      drawCrossLine: "1",
-                    },
-                    categories: [{ category: data.categories }],
-                    dataset: data.dataset,
-                  },
-                }}
-              />
-            )}
-          </div>
-
-          <div className="mt-6 mb-4 flex justify-end">
-            <button
-              onClick={downloadExcel}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
+          {/* Graphs */}
+          {graphLoading ? (
+            <Box
+              sx={{
+                height: "400px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              📥 Download Excel
-            </button>
-          </div>
+              <CircularProgress size={60} thickness={5} />
+            </Box>
+          ) : (
+            <>
+              <div>
+                <FusionChartWrapper
+                  chartConfig={{
+                    type: "mscolumn2d",
+                    width: "100%",
+                    height: "400",
+                    dataFormat: "json",
+                    dataSource: {
+                      chart: {
+                        caption: `${tabMap[tabIndex]?.label} Wise Monthly Usage Cost`,
+                        xAxisName: "Month",
+                        yAxisName: "Cost ($)",
+                        numberPrefix: "$",
+                        labelPadding: "20",
+                        labelDisplay: "auto",
+                        theme: "fusion",
+                        drawCrossLine: "1",
+                      },
+                      categories: [{ category: data.categories }],
+                      dataset: data.dataset,
+                    },
+                  }}
+                />
+              </div>
 
-          {/* Table Section */}
-          <div className="mt-8">
-            {loading ? (
-              <div>Loading table...</div>
-            ) : (
-              (() => {
-                const { columns, rows } = tabData;
-                return <TableWrapper columns={columns} rows={rows} />;
-              })()
-            )}
-          </div>
+              <div className="mt-8">
+                <FusionChartWrapper
+                  chartConfig={{
+                    type: "msline",
+                    width: "100%",
+                    height: "400",
+                    dataFormat: "json",
+                    dataSource: {
+                      chart: {
+                        caption: "Monthly Cost Overview",
+                        xAxisName: "Month",
+                        yAxisName: "Cost ($)",
+                        theme: "fusion",
+                        drawAnchors: "1",
+                        showValues: "0",
+                        lineThickness: "2",
+                        labelPadding: "20",
+                        labelDisplay: "auto",
+                        legendPosition: "bottom",
+                        drawCrossLine: "1",
+                      },
+                      categories: [{ category: data.categories }],
+                      dataset: data.dataset,
+                    },
+                  }}
+                />
+              </div>
+
+              {/* Download Excel */}
+              <div className="mt-6 mb-4 flex justify-end">
+                <button
+                  onClick={() =>
+                    downloadExcelFile({
+                      rows: tabData.rows,
+                      columns: tabData.columns,
+                      sheetName: "Cost Explorer Data",
+                      fileName: "CostExplorerData.xlsx",
+                    })
+                  }
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-md transition duration-200 ease-in-out hover:shadow-lg active:scale-95"
+                >
+                  <span>📥</span> <span>Download Excel</span>
+                </button>
+              </div>
+
+              {/* Table */}
+              <div className="mt-8">
+                {loading ? (
+                  <div>Loading table...</div>
+                ) : (
+                  <TableWrapper columns={tabData.columns} rows={tabData.rows} />
+                )}
+              </div>
+            </>
+          )}
         </Box>
 
-        {/* Sidebar */}
+        {/* Filter Sidebar */}
         {isFilterSidebarOpen && (
           <Box
             sx={{
@@ -349,6 +335,21 @@ const CostExplorer = () => {
                 setSelectedOptions([]);
                 setSearchTerm("");
                 setFilterData([]);
+              }}
+              onClearAllFilters={() => {
+                setAppliedFilters({});
+                setOpenFilter(null);
+                setSelectedOptions([]);
+                setSearchTerm("");
+                setFilterData([]);
+
+                if (selectedAccount?.accountId && tabMap[tabIndex]?.key) {
+                  fetchData(
+                    tabMap[tabIndex].key,
+                    selectedAccount.accountId,
+                    {}
+                  );
+                }
               }}
               tabMap={tabMap}
               openFilter={openFilter}

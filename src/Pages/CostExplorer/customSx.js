@@ -5,7 +5,7 @@ export const customSx = {
     "& .MuiTab-root": {
       backgroundColor: "#ffffff",
       color: "#3f51b5",
-      borderRadius: "9px", // your updated radius
+      borderRadius: "9px",
       textTransform: "none",
       fontWeight: 500,
       fontSize: "14px",

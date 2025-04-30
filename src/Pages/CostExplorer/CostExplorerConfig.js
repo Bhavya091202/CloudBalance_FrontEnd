@@ -1,9 +1,3 @@
-export const tabMap = {
-  // 0: { label: "EC2", key: "Ec2" },
-  // 1: { label: "RDS", key: "Rds" },
-  // 2: { label: "ASG", key: "Asg" },
-};
-
 export const monthOptions = [
   { label: "Jan 2024", value: "01-2024" },
   { label: "Feb 2024", value: "02-2024" },
